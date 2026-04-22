@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Farmer Assistant | স্মার্ট কৃষি সহায়িকা</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-hover: #047857;
+            --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Outfit', 'Hind Siliguri', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header { text-align: center; margin-bottom: 32px; }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #064e3b;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .upload-section {
+            border: 2px dashed #a7f3d0;
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.4);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(1.01);
+        }
+
+        .upload-section.dragover {
+            border-color: var(--primary);
+            background: #ecfdf5;
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        #fileInput { display: none; }
+
+        #preview-container {
+            display: none;
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        #preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .input-group { margin-bottom: 24px; }
+        
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            margin-left: 4px;
+        }
+
+        input[type=text] {
+            width: 100%;
+            background: white;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input[type=text]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+        }
+
+        button:active { transform: translateY(0); }
+
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #result {
+            margin-top: 32px;
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid transparent;
+        }
+
+        .result-card.detected {
+            background: #fff1f2;
+            border-color: #fecaca;
+        }
+
+        .result-card.healthy {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge.high { background: #fee2e2; color: #991b1b; }
+        .badge.medium { background: #fef3c7; color: #92400e; }
+        .badge.low { background: #dcfce7; color: #166534; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 12px 16px;
+            border-radius: 12px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .content-section { margin-bottom: 20px; }
+        .content-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-section p, .content-section li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4b5563;
+        }
+
+        .content-section ul { padding-left: 20px; }
+        .content-section li { margin-bottom: 6px; }
+
+        .loader {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s infinite cubic-bezier(0.5, 0, 0.5, 1);
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .footer-meta {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 24px; }
+            h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌾 AI Farmer Assistant</h1>
+            <p>আধুনিক প্রযুক্তিতে ফসলের যত্ন নিন</p>
+        </header>
+
+        <div class="upload-section" id="dropzone" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept="image/*">
+            <span class="upload-icon">📸</span>
+            <p class="upload-text">ফসলের ছবি এখানে আপলোড করুন</p>
+            <p style="font-size: 12px; color: #9ca3af; margin-top: 8px;">Drag & drop or click to browse</p>
+            
+            <div id="preview-container">
+                <img id="preview">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">ফসলের নাম (ঐচ্ছিক)</label>
+            <input type="text" id="cropName" placeholder="যেমন: ধান, টমেটো, আলু...">
+        </div>
+
+        <button id="analyzeBtn" disabled onclick="analyze()">
+            <span>🔍 বিশ্লেষণ শুরু করুন</span>
+        </button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewContainer = document.getElementById('preview-container');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const dropzone = document.getElementById('dropzone');
+        const resultDiv = document.getElementById('result');
+        let selectedFile = null;
+
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                preview.src = URL.createObjectURL(file);
+                previewContainer.style.display = 'block';
+                analyzeBtn.disabled = false;
+                
+                // Smooth scroll to button
+                analyzeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+        dropzone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        async function analyze() {
+            if (!selectedFile) return;
+            
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<span>⏳ বিশ্লেষণ চলছে...</span>';
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="loader">
+                    <div class="spinner"></div>
+                    <p style="color: var(--text-muted); font-size: 14px;">AI আপনার ফসলের ছবি পরীক্ষা করছে...</p>
+                </div>
+            `;
+
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            formData.append('crop_name', document.getElementById('cropName').value);
+
+            try {
+                const res = await fetch('/disease/analyze', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.detail || 'বিশ্লেষণে সমস্যা হয়েছে');
+                }
+
+                const a = data.analysis;
+                const isDetected = a.detected !== false;
+                const urgencyText = a.urgency === 'high' ? 'জরুরি' : a.urgency === 'medium' ? 'মাঝারি' : 'কম';
+                const urgencyBadge = a.urgency ? `<span class="badge ${a.urgency}">${urgencyText}</span>` : '';
+
+                let html = `
+                    <div class="result-card ${isDetected ? 'detected' : 'healthy'}">
+                        <div class="result-header">
+                            <div class="result-title">
+                                ${isDetected ? '🔴 রোগ শনাক্ত হয়েছে' : '✅ ফসল সুস্থ আছে'}
+                            </div>
+                            ${urgencyBadge}
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">ফসলের নাম</div>
+                                <div class="info-value">${a.crop_name || 'শনাক্ত করা যায়নি'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">নিশ্চিততা</div>
+                                <div class="info-value">${a.confidence === 'high' ? 'উচ্চ' : a.confidence === 'medium' ? 'মাঝারি' : 'কম'}</div>
+                            </div>
+                        </div>
+
+                        ${a.summary ? `
+                            <div class="content-section">
+                                <p><strong>সারসংক্ষেপ:</strong> ${a.summary}</p>
+                            </div>
+                        ` : ''}
+
+                        ${isDetected ? `
+                            <div class="content-section">
+                                <h3>📋 লক্ষণসমূহ</h3>
+                                <ul>${(a.symptoms || []).map(s => `<li>${s}</li>`).join('')}</ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h3>🔬 মূল কারণ</h3>
+                                <p>${a.causes || 'তথ্য নেই'}</p>
+                            </div>
+
+                            <div class="content-section">
+                                <h3>💊 চিকিৎসা ও সমাধান</h3>
+                                <ul>${(a.treatment || []).map(t => `<li>${t}</li>`).join('')}</ul>
+                            </div>
+                        ` : ''}
+
+                        <div class="content-section">
+                            <h3>🛡️ প্রতিরোধমূলক ব্যবস্থা</h3>
+                            <ul>${(a.prevention || []).map(p => `<li>${p}</li>`).join('')}</ul>
+                        </div>
+
+                        <div class="footer-meta">
+                            <span>মডেল: ${a.model_used || 'GPT-4o'}</span>
+                            <span>টোকেন: ${a.tokens_used || '—'}</span>
+                        </div>
+                    </div>
+                `;
+                
+                resultDiv.innerHTML = html;
+            } catch (err) {
+                resultDiv.innerHTML = `
+                    <div class="result-card detected">
+                        <p style="color: #e11d48; font-weight: 600;">❌ ত্রুটি: ${err.message}</p>
+                        <p style="font-size: 13px; margin-top: 8px; color: #6b7280;">অনুগ্রহ করে আবার চেষ্টা করুন বা ইন্টারনেট সংযোগ চেক করুন।</p>
+                    </div>
+                `;
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<span>🔍 পুনরায় বিশ্লেষণ করুন</span>';
+            }
+        }
+    </script>
+</body>
+</html>
