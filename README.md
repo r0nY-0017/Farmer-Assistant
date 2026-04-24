@@ -1,55 +1,55 @@
 # 🌾 AI Farmer Assistant
 
-ফসলের ছবি দিলে OpenAI Vision (GPT-4o) দিয়ে রোগ চিহ্নিত করে **বাংলায়** চিকিৎসা ও পরামর্শ দেয়।
+Analyzes crop images using OpenAI Vision (GPT-4o) to detect diseases and provides treatment and advice in **Bengali**.
 
 ## ✅ Features
-- ছবি আপলোড করে ফসলের রোগ detect
-- বাংলায় রোগের নাম, কারণ, চিকিৎসা, প্রতিরোধ
-- সুন্দর web UI দিয়ে local test
+- Crop disease detection by uploading images
+- Disease name, causes, treatment, and prevention in Bengali
+- Beautiful web UI for local testing
 - Drag & drop image support
 - FastAPI Swagger docs (`/docs`)
 
 ## 🚀 Local Setup
 
-### 1. Clone / ফোল্ডার তৈরি করো
+### 1. Clone / Create Folder
 ```bash
 cd ai-farmer-assistant
 ```
 
-### 2. Virtual environment
+### 2. Virtual Environment
 ```bash
 python -m venv venv
 source venv/bin/activate        # Mac/Linux
 venv\Scripts\activate           # Windows
 ```
 
-### 3. Dependencies install
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. .env ফাইল তৈরি করো
+### 4. Create .env File
 ```bash
 cp .env.example .env
 ```
-`.env` ফাইল খুলে `OPENAI_API_KEY` এর জায়গায় তোমার API key বসাও:
-```
+Open the `.env` file and replace `OPENAI_API_KEY` with your actual API key:
+```env
 OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxx
 ```
 
-### 5. Server চালু করো
+### 5. Start the Server
 ```bash
 uvicorn app.main:app --reload
 ```
 
-### 6. Browser এ যাও
+### 6. Open in Browser
 ```
-http://localhost:8000          → Web UI (ছবি আপলোড করে test করো)
+http://localhost:8000          → Web UI (Test by uploading an image)
 http://localhost:8000/docs     → Swagger API docs
 ```
 
 ## 📁 Project Structure
-```
+```text
 ai-farmer-assistant/
 ├── app/
 │   ├── api/
@@ -59,7 +59,7 @@ ai-farmer-assistant/
 │   ├── core/
 │   │   └── config.py           # Settings
 │   └── main.py                 # FastAPI app + Web UI
-├── uploads/                    # আপলোড করা ছবি সেভ হয় এখানে
+├── uploads/                    # Uploaded images are saved here
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -69,7 +69,7 @@ ai-farmer-assistant/
 ```bash
 curl -X POST http://localhost:8000/disease/analyze \
   -F "image=@/path/to/crop.jpg" \
-  -F "crop_name=টমেটো"
+  -F "crop_name=Tomato"
 ```
 
 ## 📊 Sample Response
@@ -78,21 +78,21 @@ curl -X POST http://localhost:8000/disease/analyze \
   "success": true,
   "analysis": {
     "detected": true,
-    "crop_name": "টমেটো",
-    "disease_name": "আর্লি ব্লাইট (Early Blight)",
+    "crop_name": "Tomato",
+    "disease_name": "Early Blight",
     "confidence": "high",
-    "symptoms": ["পাতায় বাদামি দাগ", "দাগের চারপাশে হলুদ রিং"],
-    "causes": "Alternaria solani ছত্রাকের আক্রমণ",
-    "treatment": ["Mancozeb ছত্রাকনাশক স্প্রে করুন", "আক্রান্ত পাতা সরিয়ে ফেলুন"],
-    "prevention": ["ফসল পর্যায়ক্রমে বদলান", "অতিরিক্ত পানি দেওয়া এড়িয়ে চলুন"],
+    "symptoms": ["Brown spots on leaves", "Yellow rings around the spots"],
+    "causes": "Alternaria solani fungus attack",
+    "treatment": ["Spray Mancozeb fungicide", "Remove infected leaves"],
+    "prevention": ["Rotate crops periodically", "Avoid excessive watering"],
     "urgency": "medium",
-    "summary": "টমেটোতে আর্লি ব্লাইট রোগ দেখা যাচ্ছে। দ্রুত ব্যবস্থা নিন।"
+    "summary": "Early blight disease is visible on the tomato. Take immediate action."
   }
 }
 ```
 
-## 🔮 Next Steps (GitHub এ add করার পরে)
-- [ ] PostgreSQL দিয়ে diagnosis history সেভ
+## 🔮 Next Steps (After pushing to GitHub)
+- [ ] Save diagnosis history using PostgreSQL
 - [ ] JWT Auth (farmer login)
 - [ ] Weather API integration
 - [ ] SMS alert (Twilio)
